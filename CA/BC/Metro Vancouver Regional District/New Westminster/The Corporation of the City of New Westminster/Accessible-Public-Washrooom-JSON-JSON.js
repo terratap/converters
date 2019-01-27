@@ -22,44 +22,33 @@ module.exports =
 
 function convert(data)
 {
-    var json = {};
+    var original  = data;
+    var converted = {}
 
-    json.type     = "FeatureCollection";
-    json.features = [];
-
-    var lines = data.split('\r\n');
-
-    // Skip first line, it is titles
-    for(var i = 1; i < lines.length; i++)
+    if(typeof(original) === 'string' || original instanceof String)
     {
-        var line = lines[i];
-
-        if(line.length === 0)
-        {
-            continue;
-        }
-
-        var fields  = line.split(',');
-        var feature = {};
-
-        feature.type = "Feature";
-
-        feature.geometry             = {};
-        feature.geometry.type        = "Point";
-        feature.geometry.coordinates =
-            [
-                parseFloat(fields[7]),
-                parseFloat(fields[8])
-            ];
-
-        feature.properties             = {};
-        feature.properties.name        = fields[0];
-        feature.properties.address     = fields[2];
-        feature.properties.description = fields[4];
-        feature.properties.accessible  = fields[6] === "Yes";
-
-        json.features.push(feature)
+        original = JSON.parse(data);
     }
 
-    return JSON.stringify(json, null, 4);
+    converted.type     = "FeatureCollection";
+    converted.features = [];
+
+    var originalFeatures = original.features;
+
+    originalFeatures.forEach(
+        function(originalFeature)
+        {
+            var convertedFeature = {};
+
+            convertedFeature.type                   = "Feature";
+            convertedFeature.geometry               = originalFeature.geometry;
+            convertedFeature.properties             = {};
+            convertedFeature.properties.name        = originalFeature.properties.Name;
+            convertedFeature.properties.address     = originalFeature.properties.Address;
+            convertedFeature.properties.description = originalFeature.properties.Hours;
+            convertedFeature.properties.accesible   = originalFeature.properties.Accessible === "Yes";
+            converted.features.push(convertedFeature);
+        });
+
+    return JSON.stringify(converted, null, 4);
 }

@@ -22,12 +22,31 @@ module.exports =
 
 function convert(data)
 {
-    var json = data;
+    var original  = data;
+    var converted = {}
 
-    if(typeof(data) === 'string' || data instanceof String)
+    if(typeof(original) === 'string' || original instanceof String)
     {
-        json = JSON.parse(data)
+        original = JSON.parse(data);
     }
 
-    return JSON.stringify(json, null, 4);
+    converted.type     = "FeatureCollection";
+    converted.features = [];
+
+    var originalFeatures = original.features;
+
+    originalFeatures.forEach(
+        function(originalFeature)
+        {
+            var convertedFeature = {};
+
+            convertedFeature.type               = "Feature";
+            convertedFeature.geometry           = originalFeature.geometry;
+            convertedFeature.properties         = {};
+            convertedFeature.properties.name    = originalFeature.properties.FacilityName;
+            convertedFeature.properties.address = originalFeature.properties.Address;
+            converted.features.push(convertedFeature);
+        });
+
+    return JSON.stringify(converted, null, 4);
 }

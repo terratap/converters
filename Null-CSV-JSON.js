@@ -22,11 +22,28 @@ module.exports =
 
 function convert(data)
 {
-    var json = data;
+    var json = [];
 
-    if(typeof(data) === 'string' || data instanceof String)
+    var lines = data.split('\r\n');
+
+    for(var i = 0; i < lines.length; i++)
     {
-        json = JSON.parse(data)
+        var line = lines[i];
+
+        if(line.length === 0)
+        {
+            continue;
+        }
+
+        var fields = line.split(',');
+        var entry = {};
+
+        for(var j = 0; j < fields.length; j++)
+        {
+            entry['col-' + j] = fields[j];
+        }
+
+        json.push(entry);
     }
 
     return JSON.stringify(json, null, 4);
